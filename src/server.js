@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
+import teamRoutes from "./routes/team.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/team", teamRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
