@@ -14,6 +14,7 @@ import skillRoutes from "./routes/skill.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import contributionRoutes from "./routes/contribution.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
+import githubRoutes from "./routes/github.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -36,6 +37,8 @@ app.use("/api", skillRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/contributions", contributionRoutes);
+app.use("/api/integrations/github", githubRoutes);
+
 
 app.use(notFound);
 app.use(errorHandler);

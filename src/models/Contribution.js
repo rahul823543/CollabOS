@@ -1,20 +1,42 @@
 import mongoose from "mongoose";
 
-const contributionSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
+const contributionSchema = new mongoose.Schema(
+  {
     projectId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+      index: true,
     },
-    taskId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Task"
+
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
-    actionType: String,
-    timestamp: { type: Date, default: Date.now },
-});
+
+    commitId: {
+      type: String,
+      required: true,
+      unique: true, // 🔥 important for upsert
+    },
+
+    commitMessage: {
+      type: String,
+      trim: true,
+    },
+
+    authorName: {
+      type: String,
+    },
+
+    timestamp: {
+      type: Date,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export default mongoose.model("Contribution", contributionSchema);
