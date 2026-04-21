@@ -2,6 +2,7 @@ import { createTasksFromAI } from "../services/task.service.js";
 import Task from "../models/Task.js";
 import Contribution from "../models/Contribution.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import { verifyProof } from "../services/verification.service.js";
 
 export const createTask = asyncHandler(async (req, res) => {
   const { projectId, tasks, overrides } = req.body;
@@ -35,6 +36,12 @@ export const updateTaskStatus = asyncHandler(async (req, res) => {
 
   if (status === "done" && !proof)
     return res.status(400).json({ message: "Proof required. Provide github_commit_id or 'manual'" });
+
+  if (status === "done" && proof !== "manual") {
+    const result = await verifyProof(proof, task.project);
+    if (!result.valid)
+      return res.status(400).json({ message: result.reason });
+  }
 
   const updated = await Task.findByIdAndUpdate(req.params.id, { status }, { new: true });
 
