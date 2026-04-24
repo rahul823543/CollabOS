@@ -16,6 +16,8 @@ import contributionRoutes from "./routes/contribution.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import githubRoutes from "./routes/github.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
+import googleRoutes from "./routes/google.routes.js";
+import { googleCallback } from "./controllers/google.controller.js";
 
 dotenv.config();
 
@@ -33,12 +35,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/team", teamRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
-app.use("/api", skillRoutes);
+app.use("/api/skills", skillRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/contributions", contributionRoutes);
 app.use("/api/integrations/github", githubRoutes);
-
+app.get("/api/integrations/google/callback",googleCallback);
+app.use("/api/integrations/google", googleRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
