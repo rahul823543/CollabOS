@@ -1,4 +1,6 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
@@ -19,10 +21,16 @@ import { notFound, errorHandler } from "./middleware/error.middleware.js";
 import googleRoutes from "./routes/google.routes.js";
 import { googleCallback } from "./controllers/google.controller.js";
 import driveFolderRoutes from "./routes/driveFolder.routes.js";
+import activityRoutes from "./routes/activity.routes.js";
+import { setupOnlineTracker } from "./socket/onlineTracker.js";
 
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: "*" },
+});
 
 app.use(express.json());
 app.use(cors());
@@ -44,6 +52,9 @@ app.use("/api/integrations/github", githubRoutes);
 app.get("/api/integrations/google/callback",googleCallback);
 app.use("/api/integrations/google", googleRoutes);
 app.use("/api/integrations/google", driveFolderRoutes);
+app.use("/api/teams", activityRoutes);
+
+setupOnlineTracker(io);
 
 app.use(notFound);
 app.use(errorHandler);
@@ -53,7 +64,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+    httpServer.listen(PORT, () => console.log(`Server running on ${PORT}`));
   } catch (error) {
     console.error("DB connection failed:", error.message);
     process.exit(1);
