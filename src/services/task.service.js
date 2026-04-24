@@ -39,7 +39,7 @@ const applyOverrides = (aiResults, overrides) => {
   }
   const values = Object.values(map);
   const normalized = normalizeWeights(values);
-  normalized.forEach(r => map[r.index] = r);
+  normalized.forEach((r, i) => map[Object.keys(map)[i]] = r); // fix here
   return map;
 };
 
