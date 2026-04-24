@@ -17,7 +17,7 @@ const contributionSchema = new mongoose.Schema(
 
     commitId: {
       type: String,
-      required: true,
+      sparse: true,
       unique: true, // 🔥 important for upsert
     },
 
