@@ -18,6 +18,7 @@ import githubRoutes from "./routes/github.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 import googleRoutes from "./routes/google.routes.js";
 import { googleCallback } from "./controllers/google.controller.js";
+import driveFolderRoutes from "./routes/driveFolder.routes.js";
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use("/api/contributions", contributionRoutes);
 app.use("/api/integrations/github", githubRoutes);
 app.get("/api/integrations/google/callback",googleCallback);
 app.use("/api/integrations/google", googleRoutes);
+app.use("/api/integrations/google", driveFolderRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
