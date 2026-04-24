@@ -1,5 +1,4 @@
 import Task from "../models/Task.js";
-import User from "../models/User.js";
 import Project from "../models/Project.js";
 import Team from "../models/Team.js";
 import { callGemini } from "../utils/Gemini.js";
@@ -7,6 +6,8 @@ import { callGemini } from "../utils/Gemini.js";
 const buildPrompt = (tasks, users) => `
 You are a project manager. Assign tasks to users based on their skills.
 Ensure every user gets at least one task.
+Total weight of ALL tasks combined MUST equal exactly 100.
+Distribute weight based on task complexity — harder tasks get more weight.
 Return ONLY valid JSON, no explanation, no markdown.
 
 Format:
@@ -19,6 +20,15 @@ Tasks:
 ${tasks.map((t, i) => `- index: ${i}, title: ${t.title}, type: ${t.type}`).join("\n")}
 `;
 
+const normalizeWeights = (results) => {
+  const total = results.reduce((sum, r) => sum + (r.weight || 0), 0);
+  if (total === 0) return results;
+  return results.map(r => ({
+    ...r,
+    weight: Math.round((r.weight / total) * 100)
+  }));
+};
+
 const applyOverrides = (aiResults, overrides) => {
   const map = Object.fromEntries(aiResults.map(r => [r.index, r]));
   for (const o of overrides) {
@@ -27,6 +37,9 @@ const applyOverrides = (aiResults, overrides) => {
     if (o.weight !== undefined) map[o.index].weight = o.weight;
     if (o.deadline !== undefined) map[o.index].deadline = o.deadline;
   }
+  const values = Object.values(map);
+  const normalized = normalizeWeights(values);
+  normalized.forEach(r => map[r.index] = r);
   return map;
 };
 
@@ -45,13 +58,15 @@ export const createTasksFromAI = async (tasks, projectId, overrides = []) => {
     const cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
     aiResults = JSON.parse(cleaned);
     if (!Array.isArray(aiResults)) throw new Error("Invalid format");
+    aiResults = normalizeWeights(aiResults);
   } catch (err) {
     console.error("Gemini failed:", err);
-    aiResults = tasks.map((_, i) => ({
-      index: i,
-      assignedTo: users[i % users.length]?._id || null,
-      weight: 50,
-    }));
+    const equalWeight = Math.floor(100 / tasks.length);
+aiResults = tasks.map((_, i) => ({
+  index: i,
+  assignedTo: users[i % users.length]?._id || null,
+  weight: equalWeight,
+}));
   }
 
   const finalMap = applyOverrides(aiResults, overrides);
@@ -64,7 +79,7 @@ export const createTasksFromAI = async (tasks, projectId, overrides = []) => {
       type: tasks[i].type || "other",
       project: projectId,
       assignedTo: merged.assignedTo || null,
-      weight: merged.weight ?? 50,
+      weight: merged.weight ?? Math.floor(100 / tasks.length),
       deadline: merged.deadline || null,
     });
     created.push(task);
