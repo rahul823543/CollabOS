@@ -28,9 +28,30 @@ const contributionSchema = new mongoose.Schema(
       default: "commit",
     },
 
-    weight: {
+    // WA — Weight Assigned to task at time of completion
+    weightAssigned: {
       type: Number,
       default: 0,
+    },
+
+    // WE — Weight Earned = WA × QualityFactor × TimeFactor
+    weightEarned: {
+      type: Number,
+      default: 0,
+    },
+
+    // QualityFactor: 0.75–1 (currently always 1; future: Gemini proof analysis)
+    qualityFactor: {
+      type: Number,
+      default: 1,
+      min: 0.75,
+      max: 1,
+    },
+
+    // TimeFactor: 1 if submitted before/on deadline, 0.9 if after
+    timeFactor: {
+      type: Number,
+      default: 1,
     },
 
     proof: {

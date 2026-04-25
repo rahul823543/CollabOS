@@ -22,7 +22,7 @@ export const getTeamActivity = asyncHandler(async (req, res) => {
   const projectIds = projects.map((p) => p._id);
 
   // Get all tasks across team projects
-  const allTasks = await Task.find({ project: { $in: projectIds } });
+  const allTasks = await Task.find({ projectId: { $in: projectIds } });
 
   const totalTasks = allTasks.length;
   const completedTasks = allTasks.filter((t) => t.status === "done").length;

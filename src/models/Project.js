@@ -12,6 +12,12 @@ const projectSchema = new mongoose.Schema(
         },
         description: String,
         deadline: Date,
+        // "active" when created; "done" when all tasks are completed
+        status: {
+            type: String,
+            enum: ["active", "done"],
+            default: "active",
+        },
     },
     {
         timestamps: true

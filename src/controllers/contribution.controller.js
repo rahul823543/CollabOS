@@ -3,15 +3,20 @@ import asyncHandler from "../utils/asyncHandler.js";
 import {
   getProjectContributions,
   getUserContributions,
+  calculateWE,
 } from "../services/contribution.service.js";
+
+// Re-export calculateWE so other controllers can import from one place
+export { calculateWE };
 
 /**
  * GET /api/contributions/project/:projectId
  *
  * Returns all contribution data for a project:
- * - Users with their assigned tasks, status, weight %
- * - Top performers, last active user, total commits
- * - Late tasks (past deadline, not yet done)
+ * - Project id, title, description (goal), status (active / done)
+ * - Top performers (by WE), mostActiveCodeWorkUser, leastActiveCodeWorkUser
+ * - percentTaskCompleted (weight-based), lateTasks
+ * - Full task details (Page 3 format) for every task in the project
  */
 export const getContributionsByProject = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
@@ -27,9 +32,10 @@ export const getContributionsByProject = asyncHandler(async (req, res) => {
 /**
  * GET /api/contributions/user/:userId
  *
- * Returns all contribution data for a specific user:
- * - Projects worked on, tasks per project
- * - Weights assigned, task status, commit counts
+ * Returns contribution data for a specific user:
+ * - userId, userName  (no email)
+ * - Full task details (Page 3 format) for every task assigned to this user
+ * - overallStats: totalTasks, completedTasks, totalWeightAssigned, totalWeightEarned
  */
 export const getContributionsByUser = asyncHandler(async (req, res) => {
   const { userId } = req.params;
