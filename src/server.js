@@ -10,7 +10,7 @@ import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import teamRoutes from "./routes/team.routes.js";
-import taskRoutes from "./routes/task.routes.js";
+import taskRoutes from "./routes/Task.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import skillRoutes from "./routes/skill.routes.js";
 import userRoutes from "./routes/user.routes.js";
