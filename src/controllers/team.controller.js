@@ -136,3 +136,19 @@ export const getTeamDetails = asyncHandler(async (req, res) => {
 
   res.json(team);
 });
+
+// GET /team/my-teams
+export const getMyTeams = asyncHandler(async (req, res) => {
+  const teams = await Team.find({
+    $or: [
+      { createdBy: req.user._id },
+      { members: req.user._id }
+    ]
+  }).populate("members", "name email")
+    .populate("createdBy", "name email");
+  
+  // Return unique teams (just in case)
+  const uniqueTeamsMap = new Map();
+  teams.forEach(team => uniqueTeamsMap.set(team._id.toString(), team));
+  res.json(Array.from(uniqueTeamsMap.values()));
+});
