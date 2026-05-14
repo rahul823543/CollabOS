@@ -55,13 +55,28 @@ app.use(
 
 app.use(morgan("dev"));
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: "Too many requests, please try again later.",
+});
+
+/*
+  Do NOT rate limit auth/session routes
+  because frontend session restore can trigger repeated requests
+*/
 if (process.env.NODE_ENV === "production") {
-  app.use(
-    rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 100,
-    })
-  );
+  app.use("/api/team", apiLimiter);
+  app.use("/api/projects", apiLimiter);
+  app.use("/api/tasks", apiLimiter);
+  app.use("/api/skills", apiLimiter);
+  app.use("/api/ai", apiLimiter);
+  app.use("/api/users", apiLimiter);
+  app.use("/api/contributions", apiLimiter);
+  app.use("/api/integrations/github", apiLimiter);
+  app.use("/api/integrations/google", apiLimiter);
 }
 
 app.get("/", (req, res) => {
