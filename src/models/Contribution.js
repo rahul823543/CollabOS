@@ -2,13 +2,6 @@ import mongoose from "mongoose";
 
 const contributionSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-      index: true,
-    },
-
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
@@ -16,42 +9,23 @@ const contributionSchema = new mongoose.Schema(
       index: true,
     },
 
-    taskId: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Task",
+      ref: "User",
       default: null,
     },
 
     actionType: {
       type: String,
-      enum: ["task_completed", "commit"],
-      default: "commit",
+      enum: ["task_completed", "github_commit"],
+      default: "github_commit",
     },
 
-    // WA — Weight Assigned to task at time of completion
-    weightAssigned: {
-      type: Number,
-      default: 0,
-    },
-
-    // WE — Weight Earned = WA × QualityFactor × TimeFactor
-    weightEarned: {
-      type: Number,
-      default: 0,
-    },
-
-    // QualityFactor: 0.75–1 (currently always 1; future: Gemini proof analysis)
-    qualityFactor: {
-      type: Number,
-      default: 1,
-      min: 0.75,
-      max: 1,
-    },
-
-    // TimeFactor: 1 if submitted before/on deadline, 0.9 if after
-    timeFactor: {
-      type: Number,
-      default: 1,
+    // Task contributions
+    taskId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Task",
+      default: null,
     },
 
     proof: {
@@ -59,15 +33,21 @@ const contributionSchema = new mongoose.Schema(
       default: null,
     },
 
-    // GitHub commit fields
+    weight: {
+      type: Number,
+      default: 1,
+      min: 0,
+    },
+
+    // GitHub commit data
     commitId: {
       type: String,
-      unique: true,
-      sparse: true,
+      default: null,
     },
 
     commitMessage: {
       type: String,
+      trim: true,
       default: null,
     },
 
@@ -76,9 +56,29 @@ const contributionSchema = new mongoose.Schema(
       default: null,
     },
 
+    githubUsername: {
+      type: String,
+      default: null,
+    },
+
+    commitUrl: {
+      type: String,
+      default: null,
+    },
+
+    repoOwner: {
+      type: String,
+      default: null,
+    },
+
+    repoName: {
+      type: String,
+      default: null,
+    },
+
     timestamp: {
       type: Date,
-      default: Date.now,
+      default: null,
     },
   },
   {
@@ -86,8 +86,16 @@ const contributionSchema = new mongoose.Schema(
   }
 );
 
-// Compound indexes for the aggregation queries
-contributionSchema.index({ projectId: 1, actionType: 1 });
-contributionSchema.index({ userId: 1, actionType: 1 });
+// Prevent duplicate GitHub commits
+contributionSchema.index(
+  { commitId: 1 },
+  {
+    unique: true,
+    sparse: true,
+  }
+);
 
-export default mongoose.model("Contribution", contributionSchema);
+export default mongoose.model(
+  "Contribution",
+  contributionSchema
+);

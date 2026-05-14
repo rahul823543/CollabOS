@@ -12,8 +12,16 @@ export const isTeamMember = (team, userId) => {
 
 export const findTeamAndValidate = async (teamId, userId) => {
   const team = await Team.findById(teamId);
-  if (!team) throw { status: 404, message: "Team not found" };
-  if (!isTeamMember(team, userId)) throw { status: 403, message: "Not authorized" };
+  if (!team) {
+    const err = new Error("Team not found");
+    err.statusCode = 404;
+    throw err;
+  }
+  if (!isTeamMember(team, userId)) {
+    const err = new Error("Not authorized");
+    err.statusCode = 403;
+    throw err;
+  }
   return team;
 };
 

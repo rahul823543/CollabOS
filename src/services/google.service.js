@@ -1,91 +1,116 @@
 import { google } from "googleapis";
-import oauth2Client from "../config/googleOAuth.js";
 import GoogleIntegration from "../models/GoogleIntegration.js";
 
-export const getGoogleAuthURL = (userId, projectId) => {
-    const state = JSON.stringify({
-        userId,
-        projectId,
-    });
+const createOAuth2Client = () => {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
+};
 
-    return oauth2Client.generateAuthUrl({
-        access_type: "offline",
-        prompt: "consent",
-        scope: [
-            "openid",
-            "email",
-            "profile",
-            "https://www.googleapis.com/auth/drive.readonly",
-        ],
-        state,
-    });
+export const getGoogleAuthURL = (userId, projectId) => {
+  const state = JSON.stringify({
+    userId,
+    projectId,
+  });
+
+  const client = createOAuth2Client();
+
+  return client.generateAuthUrl({
+    access_type: "offline",
+    prompt: "consent",
+    scope: [
+      "openid",
+      "email",
+      "profile",
+      "https://www.googleapis.com/auth/drive.readonly",
+    ],
+    state,
+  });
 };
 
 export const saveGoogleTokens = async (code, state) => {
-    const parsedState = JSON.parse(state);
+  const parsedState = JSON.parse(state);
+  const { userId, projectId } = parsedState;
 
-    const { userId, projectId } = parsedState;
+  const client = createOAuth2Client();
+  const { tokens } = await client.getToken(code);
 
-    const { tokens } = await oauth2Client.getToken(code);
+  client.setCredentials(tokens);
 
-    oauth2Client.setCredentials(tokens);
+  const oauth2 = google.oauth2({
+    auth: client,
+    version: "v2",
+  });
 
-    const oauth2 = google.oauth2({
-        auth: oauth2Client,
-        version: "v2",
-    });
+  const userInfo = await oauth2.userinfo.get();
 
-    const userInfo = await oauth2.userinfo.get();
+  const existing = await GoogleIntegration.findOne({
+    userId,
+    projectId,
+    provider: "google",
+  });
 
-    const existing = await GoogleIntegration.findOne({
-        userId,
-    });
+  if (existing) {
+    existing.googleEmail = userInfo.data.email;
+    existing.accessToken = tokens.access_token;
+    existing.refreshToken =
+      tokens.refresh_token || existing.refreshToken;
 
-    if (existing) {
-        existing.googleEmail = userInfo.data.email;
-        existing.accessToken = tokens.access_token;
-        existing.refreshToken =
-            tokens.refresh_token || existing.refreshToken;
+    await existing.save();
+    return existing;
+  }
 
-        await existing.save();
-
-        return existing;
-    }
-
-    return await GoogleIntegration.create({
-        userId,
-        projectId,
-        googleEmail: userInfo.data.email,
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token || null,
-    });
+  return await GoogleIntegration.create({
+    userId,
+    projectId,
+    provider: "google",
+    googleEmail: userInfo.data.email,
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token || null,
+  });
 };
 
-export const fetchGoogleFiles = async (userId) => {
-    const integration = await GoogleIntegration.findOne({
-        userId,
-        provider: "google",
-    });
+export const fetchGoogleFiles = async (userId, projectId) => {
+  const integration = await GoogleIntegration.findOne({
+    userId,
+    projectId,
+    provider: "google",
+  });
 
-    if (!integration) {
-        throw new Error("Google account not connected");
-    }
+  if (!integration) {
+    throw new Error("Google account not connected for this project");
+  }
 
-    oauth2Client.setCredentials({
-        access_token: integration.accessToken,
-        refresh_token: integration.refreshToken,
-    });
+  const client = createOAuth2Client();
 
-    const drive = google.drive({
-        version: "v3",
-        auth: oauth2Client,
-    });
+  client.setCredentials({
+    access_token: integration.accessToken,
+    refresh_token: integration.refreshToken,
+  });
 
-    const response = await drive.files.list({
-        pageSize: 10,
-        fields: "files(id, name, mimeType, modifiedTime)",
-        orderBy: "modifiedTime desc",
-    });
+  const drive = google.drive({
+    version: "v3",
+    auth: client,
+  });
 
-    return response.data.files;
+  const response = await drive.files.list({
+    pageSize: 20,
+    fields: "files(id,name,mimeType,modifiedTime,webViewLink)",
+    q: `
+      trashed=false and (
+        mimeType='application/pdf' or
+        mimeType='application/vnd.google-apps.document' or
+        mimeType='application/vnd.google-apps.spreadsheet' or
+        mimeType='application/vnd.google-apps.presentation' or
+        mimeType contains 'text'
+      )
+    `,
+    orderBy: "modifiedTime desc",
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+
+  return response.data.files || [];
 };

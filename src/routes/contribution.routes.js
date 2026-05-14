@@ -1,16 +1,13 @@
 import express from "express";
-import {
-  getContributionsByProject,
-  getContributionsByUser,
-} from "../controllers/contribution.controller.js";
+import { getByProject, getByUser, getInsights } from "../controllers/contribution.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// GET /api/contributions/project/:projectId
-router.get("/project/:projectId", protect, getContributionsByProject);
+router.use(protect);
 
-// GET /api/contributions/user/:userId
-router.get("/user/:userId", protect, getContributionsByUser);
+router.get("/project/:projectId", getByProject);
+router.get("/user/:userId", getByUser);
+router.get("/insights/:projectId", getInsights);
 
 export default router;

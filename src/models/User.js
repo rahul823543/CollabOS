@@ -35,22 +35,46 @@ const userSchema = new mongoose.Schema(
       enum: ["member", "admin"],
       default: "member",
     },
+
+    githubUsername: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
+    pendingInvites: [
+      {
+        teamId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Team",
+        },
+        teamName: {
+          type: String,
+        },
+        invitedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        invitedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return ;
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   const salt = await bcrypt.genSalt(
     Number(process.env.SALT_ROUNDS) || 10
   );
 
   this.password = await bcrypt.hash(this.password, salt);
-
-  ; 
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
