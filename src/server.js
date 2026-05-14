@@ -26,9 +26,20 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://collab-os-frontend.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
     credentials: true,
   })
 );
@@ -44,10 +55,6 @@ app.use(
 
 app.use(morgan("dev"));
 
-/*
-  Enable rate limit only in production
-  Prevents 429 spam during local development
-*/
 if (process.env.NODE_ENV === "production") {
   app.use(
     rateLimit({
@@ -85,7 +92,7 @@ const startServer = async () => {
 
     const io = new Server(server, {
       cors: {
-        origin: process.env.FRONTEND_URL || "http://localhost:5173",
+        origin: allowedOrigins,
         methods: ["GET", "POST"],
         credentials: true,
       },
