@@ -1,16 +1,31 @@
 <div align="center">
 
-# 🚀 CollabOS Backend
+<br/>
+
+```
+   ██████╗ ██████╗ ██╗     ██╗      █████╗ ██████╗  ██████╗ ███████╗
+  ██╔════╝██╔═══██╗██║     ██║     ██╔══██╗██╔══██╗██╔═══██╗██╔════╝
+  ██║     ██║   ██║██║     ██║     ███████║██████╔╝██║   ██║███████╗
+  ██║     ██║   ██║██║     ██║     ██╔══██║██╔══██╗██║   ██║╚════██║
+  ╚██████╗╚██████╔╝███████╗███████╗██║  ██║██████╔╝╚██████╔╝███████║
+   ╚═════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚══════╝
+```
 
 ### AI-Powered Collaboration Operating System
 
+**Stop juggling ten tools. CollabOS connects them all.**
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-collab--os--frontend.vercel.app-black?style=for-the-badge)](https://collab-os-frontend.vercel.app/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com/)
-[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://socket.io/)
+[![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-*Unify your team. Automate the grind. Ship faster.*
+<br/>
+
+> 🌐 **Try it live →** [collab-os-frontend.vercel.app](https://collab-os-frontend.vercel.app/)
 
 </div>
 
@@ -18,38 +33,108 @@
 
 ## 📖 What is CollabOS?
 
-CollabOS is a production-grade backend API that acts as the intelligence layer for modern dev teams. It combines **AI-powered project planning**, **GitHub contribution tracking**, **Google Workspace integration**, and **team analytics** into a single cohesive system.
+CollabOS is a **production-grade, full-stack collaboration platform** built for modern dev teams. It's not just a project manager — it's the intelligence layer that sits between your team, your code, and your tools.
 
-Stop juggling ten tools. CollabOS connects them all.
+- 🤖 Let **Gemini AI** plan your entire project from a single description
+- 🔴 See which teammates are **online in real-time** via Socket.io presence
+- 🔗 Sync **GitHub commits** directly into your project timeline
+- 📁 Link **Google Drive folders & Docs** to any project
+- 📊 Visualize **contribution analytics** per developer, per project
+
+One system. Zero context-switching.
 
 ---
 
-## ✨ Features
+## ✨ Feature Highlights
 
 | Feature | Description |
 |---|---|
-| 🔐 **Auth System** | JWT-based auth with bcrypt password hashing |
+| 🔐 **JWT Auth** | Secure registration & login with bcrypt password hashing |
+| 🔑 **Google OAuth** | One-click sign-in with your Google account |
+| 🟢 **Live Presence** | Real-time "who's online" powered by Socket.io |
 | 👥 **Team Management** | Create teams, manage members, assign roles |
 | 📁 **Project Planning** | Create projects manually or let AI do it |
 | 🤖 **AI Task Generation** | Gemini AI auto-generates tasks from your project description |
-| 🔗 **GitHub Integration** | Sync commits, track contributions per project |
-| 📄 **Google Workspace** | Link Drive folders, access Docs per project |
-| 📊 **Analytics** | Contribution analytics per project and user |
+| 🔗 **GitHub Integration** | Connect repo, sync commits, track per-user contributions |
+| 📄 **Google Workspace** | Link Drive folders, access Docs — per project |
+| 📊 **Contribution Analytics** | Per-user, per-project breakdown of commits & activity |
+| 🛡️ **Rate Limiting** | Prevents API abuse at the middleware level |
 
 ---
 
-## ⚙️ Tech Stack
+## 🏗️ Tech Stack
 
 ```
-Runtime       →  Node.js
-Framework     →  Express.js
-Database      →  MongoDB + Mongoose
-Auth          →  JWT + bcrypt
-AI            →  Google Gemini API
-Integrations  →  GitHub API + Google OAuth
-Security      →  Helmet, Rate Limiting, CORS
-Logging       →  Morgan
+Runtime          →  Node.js v18+
+Framework        →  Express.js
+Database         →  MongoDB + Mongoose
+Authentication   →  JWT + bcrypt + Google OAuth 2.0
+Real-time        →  Socket.io (presence, live events)
+AI               →  Google Gemini API
+VCS Integration  →  GitHub REST API
+File Storage     →  Google Drive API
+Security         →  Helmet, CORS, Rate Limiting
+Logging          →  Morgan
+Frontend Host    →  Vercel
+Backend Host     →  Render
+Database Host    →  MongoDB Atlas
 ```
+
+---
+
+## 🟢 Real-Time Presence — Socket.io
+
+One of CollabOS's standout features is **live team presence**. Every authenticated user emits their status to the server when they connect, and all teammates can instantly see who's online — no polling, no refresh.
+
+**How it works:**
+
+```
+User Opens CollabOS
+       ↓
+   JWT Verified
+       ↓
+ Socket.io Handshake
+       ↓
+Server registers user as "online"
+       ↓
+Broadcasts to all team members
+       ↓
+🟢 Avatar goes live in dashboard
+       ↓
+On disconnect → status removed, team notified
+```
+
+**Events:**
+| Event | Direction | Description |
+|---|---|---|
+| `user:online` | Client → Server | User connected |
+| `user:offline` | Server → Client | User disconnected |
+| `team:presence` | Server → Client | Full list of online team members |
+| `task:updated` | Server → Client | Real-time task status change |
+
+---
+
+## 🔑 Google OAuth Flow
+
+Users can authenticate with their Google account instead of (or in addition to) email/password.
+
+```
+User clicks "Sign in with Google"
+           ↓
+  Redirected to Google Consent Screen
+           ↓
+  Google returns auth code
+           ↓
+  Backend exchanges code → access + refresh tokens
+           ↓
+  User record created / updated in MongoDB
+           ↓
+  JWT issued → user is logged in
+           ↓
+  Google tokens stored for Drive/Docs integration
+```
+
+This same OAuth session is also reused for **Google Drive** and **Google Docs** access — no re-authentication needed.
 
 ---
 
@@ -57,15 +142,16 @@ Logging       →  Morgan
 
 ```
 collabos-backend/
-├── config/           # DB connection, environment config
+├── config/           # DB connection, environment setup
 ├── controllers/      # Route handler logic
-├── middleware/       # Auth, error handler, rate limiter, logger
+├── middleware/        # Auth, error handler, rate limiter, logger
 ├── models/           # Mongoose schemas
 ├── routes/           # Express route definitions
 ├── services/         # External API logic (GitHub, Google, Gemini)
+├── sockets/          # Socket.io event handlers & presence logic
 ├── utils/            # Helper functions
 ├── .env.example      # Environment variable template
-└── server.js         # App entry point
+└── server.js         # App entry point + Socket.io init
 ```
 
 ---
@@ -75,13 +161,15 @@ collabos-backend/
 <details>
 <summary><strong>User</strong> — Account & profile</summary>
 
-| Field | Type |
-|---|---|
-| `name` | String |
-| `email` | String (unique) |
-| `password` | String (hashed) |
-| `role` | String |
-| `skills` | Array |
+| Field | Type | Notes |
+|---|---|---|
+| `name` | String | Display name |
+| `email` | String (unique) | Login identifier |
+| `password` | String | bcrypt hashed (null for OAuth users) |
+| `role` | String | e.g. `admin`, `developer` |
+| `skills` | Array | Tech skills list |
+| `googleId` | String | Populated on Google OAuth sign-in |
+| `avatar` | String | Profile picture URL |
 
 </details>
 
@@ -106,6 +194,8 @@ collabos-backend/
 | `teamId` | ObjectId → Team |
 | `deadline` | Date |
 | `status` | String |
+| `githubRepo` | String |
+| `driveFolderId` | String |
 
 </details>
 
@@ -157,13 +247,15 @@ collabos-backend/
 
 ### 🔐 Authentication
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
 | `POST` | `/api/auth/register` | Register new user | ❌ |
 | `POST` | `/api/auth/login` | Login & receive JWT | ❌ |
-| `GET` | `/api/auth/me` | Get current user | ✅ |
+| `GET` | `/api/auth/me` | Get current user profile | ✅ |
+| `GET` | `/api/auth/google` | Initiate Google OAuth flow | ❌ |
+| `GET` | `/api/auth/google/callback` | Google OAuth callback | ❌ |
 
-**Register example:**
+**Register:**
 ```json
 POST /api/auth/register
 {
@@ -177,46 +269,45 @@ POST /api/auth/register
 
 ### 👥 Teams
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
 | `POST` | `/api/teams` | Create a team | ✅ |
 | `POST` | `/api/teams/add-member` | Add member to team | ✅ |
-| `GET` | `/api/teams/:teamId` | Get team members | ✅ |
+| `GET` | `/api/teams/:teamId` | Get team details & members | ✅ |
 
 ---
 
 ### 📁 Projects
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
 | `POST` | `/api/projects` | Create project manually | ✅ |
-| `POST` | `/api/projects/create-with-ai` | Create project + AI-generated tasks | ✅ |
+| `POST` | `/api/projects/create-with-ai` | AI-generated project + tasks | ✅ |
 | `GET` | `/api/projects` | List all projects | ✅ |
 
 ---
 
 ### 🧩 Tasks
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
 | `POST` | `/api/tasks` | Create a task | ✅ |
 | `PUT` | `/api/tasks/:taskId` | Update task status | ✅ |
-| `GET` | `/api/tasks/project/:projectId` | Get tasks for a project | ✅ |
+| `GET` | `/api/tasks/project/:projectId` | Get all tasks for a project | ✅ |
 
 ---
 
 ### 🤖 AI
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
-| `POST` | `/api/ai/generate-tasks` | Generate tasks with Gemini AI | ✅ |
+| `POST` | `/api/ai/generate-tasks` | Auto-generate tasks with Gemini | ✅ |
 
-**Request body:**
 ```json
 {
   "title": "CollabOS",
-  "description": "Team collaboration platform",
-  "techStack": ["React", "Node.js"]
+  "description": "AI-powered team collaboration platform",
+  "techStack": ["React", "Node.js", "MongoDB"]
 }
 ```
 
@@ -224,21 +315,21 @@ POST /api/auth/register
 
 ### 🔗 GitHub Integration
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
 | `POST` | `/api/integrations/github/connect` | Connect GitHub account | ✅ |
-| `GET` | `/api/integrations/github/commits/:projectId` | Sync commits | ✅ |
-| `GET` | `/api/integrations/github/contributions/:projectId` | View contribution analytics | ✅ |
+| `GET` | `/api/integrations/github/commits/:projectId` | Sync & view commits | ✅ |
+| `GET` | `/api/integrations/github/contributions/:projectId` | Contribution analytics | ✅ |
 
 ---
 
-### 📄 Google Workspace Integration
+### 📄 Google Workspace
 
-| Method | Endpoint | Description | Auth Required |
+| Method | Endpoint | Description | Auth |
 |---|---|---|---|
 | `POST` | `/api/integrations/google/connect` | Connect Google account | ✅ |
 | `POST` | `/api/integrations/google/link-folder` | Link a Drive folder | ✅ |
-| `GET` | `/api/integrations/google/docs/:projectId` | Get linked Docs | ✅ |
+| `GET` | `/api/integrations/google/docs/:projectId` | Get project-linked Docs | ✅ |
 
 ---
 
@@ -248,30 +339,28 @@ POST /api/auth/register
 
 - Node.js v18+
 - MongoDB (local or Atlas)
+- Google Cloud project (OAuth + Drive API enabled)
+- GitHub OAuth App
 - Gemini API key
-- GitHub OAuth app
-- Google OAuth credentials
 
-### 1. Clone the repository
+### 1. Clone
 
 ```bash
 git clone <repo-url>
 cd collabos-backend
 ```
 
-### 2. Install dependencies
+### 2. Install
 
 ```bash
 npm install
 ```
 
-### 3. Configure environment variables
+### 3. Configure `.env`
 
 ```bash
 cp .env.example .env
 ```
-
-Edit `.env` with your credentials:
 
 ```env
 PORT=5000
@@ -279,26 +368,27 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 CLIENT_URL=http://localhost:5173
 
-# AI
+# Google AI
 GEMINI_API_KEY=your_gemini_api_key
 
 # GitHub OAuth
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 
-# Google OAuth
+# Google OAuth + Workspace
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=http://localhost:5000/api/integrations/google/callback
+GOOGLE_REDIRECT_URI=http://localhost:5000/api/auth/google/callback
 ```
 
-### 4. Start the development server
+### 4. Run
 
 ```bash
 npm run dev
 ```
 
-Server runs at `http://localhost:5000`
+API: `http://localhost:5000`  
+Socket.io: same port, auto-upgraded
 
 ---
 
@@ -307,69 +397,81 @@ Server runs at `http://localhost:5000`
 | Middleware | Purpose |
 |---|---|
 | `authMiddleware` | Validates JWT on protected routes |
+| `socketAuth` | Authenticates Socket.io connections via JWT |
 | `errorHandler` | Centralized error formatting |
-| `rateLimiter` | Prevents API abuse |
+| `rateLimiter` | Prevents API abuse (express-rate-limit) |
 | `morgan` | HTTP request logging |
 
 ---
 
 ## 🌐 Deployment
 
-| Layer | Recommended Platform |
-|---|---|
-| Frontend | [Vercel](https://vercel.com) |
-| Backend | [Render](https://render.com) |
-| Database | [MongoDB Atlas](https://cloud.mongodb.com) |
+| Layer | Platform | URL |
+|---|---|---|
+| Frontend | Vercel | [collab-os-frontend.vercel.app](https://collab-os-frontend.vercel.app/) |
+| Backend | Render | your-backend.render.com |
+| Database | MongoDB Atlas | cloud.mongodb.com |
+
+> **Note:** When deploying, update `CLIENT_URL` and all OAuth callback URIs to match your production domains. Vercel automatically handles HTTPS — make sure your backend CORS config whitelists the Vercel domain.
 
 ---
 
-## 🔄 Application Flow
+## 🔄 Full Application Flow
 
 ```
-User Registers / Logs In
-        ↓
-    Creates Team
-        ↓
-   Creates Project
-        ↓
-AI Generates Tasks (optional)
-        ↓
-  Tasks Get Assigned
-        ↓
-  GitHub Commits Tracked
-        ↓
- Google Drive Linked
-        ↓
-Contribution Analytics
-        ↓
-     Dashboard
+User Signs Up / Google OAuth
+           ↓
+    JWT Token Issued
+           ↓
+  Socket.io Connection ──────────► 🟢 Live Presence in Team Dashboard
+           ↓
+      Creates Team
+           ↓
+     Creates Project
+           ↓
+  AI Generates Tasks (Gemini) ──► Tasks auto-assigned to team
+           ↓
+    GitHub Repo Connected
+           ↓
+   Commits Synced & Tracked ─────► Contribution Analytics Per Dev
+           ↓
+  Google Drive Folder Linked
+           ↓
+  Docs Accessible Per Project
+           ↓
+       Dashboard View
 ```
 
 ---
 
 ## 📌 Roadmap
 
-| Phase | Description | Status |
+| Phase | Feature | Status |
 |---|---|---|
-| Phase 1 | Backend Foundation (Auth, Teams, Projects, Tasks) | ✅ Complete |
-| Phase 2 | AI Intelligence (Gemini task generation) | ✅ Complete |
-| Phase 3 | GitHub Tracking (commits, contributions) | ✅ Complete |
-| Phase 4 | Google Workspace Collaboration |✅ Complete |
+| Phase 1 | Auth, Teams, Projects, Tasks | ✅ Complete |
+| Phase 2 | Gemini AI Task Generation | ✅ Complete |
+| Phase 3 | GitHub Tracking & Analytics | ✅ Complete |
+| Phase 4 | Google Workspace Integration | ✅ Complete |
+| Phase 5 | Real-Time Presence (Socket.io) | ✅ Complete |
+| Phase 6 | Google OAuth Sign-In | ✅ Complete |
+
 
 ---
 
 ## 👨‍💻 Authors
 
-Built with ❤️ by the **CollabOS Team**.
+Built with ❤️ by the **CollabOS Team**
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+[MIT License](LICENSE)
 
 ---
 
 <div align="center">
-  <sub>CollabOS — AI + GitHub + Google Workspace + Team Intelligence</sub>
+  <sub>CollabOS — AI · GitHub · Google Workspace · Real-Time Presence · Team Intelligence</sub>
+  <br/><br/>
+  <a href="https://collab-os-frontend.vercel.app/">🌐 Live Demo</a>
 </div>
