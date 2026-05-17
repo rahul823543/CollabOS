@@ -24,7 +24,7 @@ export const connectGoogle = asyncHandler(async (req, res) => {
 });
 
 export const googleCallback = async (req, res) => {
-  const frontendUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const frontendUrl = process.env.CLIENT_URL || "https://collab-os-frontend.vercel.app/";
 
   try {
     const { code, state } = req.query;
