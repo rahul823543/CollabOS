@@ -1,7 +1,7 @@
 import {
   getGoogleAuthURL,
   saveGoogleTokens,
-  fetchGoogleFiles
+  fetchGoogleFiles,
 } from "../services/google.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
@@ -15,62 +15,86 @@ export const connectGoogle = asyncHandler(async (req, res) => {
     });
   }
 
-  const url = getGoogleAuthURL(req.user._id, projectId);
+  try {
+    const url = getGoogleAuthURL(req.user._id, projectId);
 
-  res.status(200).json({
-    success: true,
-    url,
-  });
+    console.log("=== GOOGLE OAUTH DEBUG ===");
+    console.log("CLIENT_URL:", process.env.CLIENT_URL);
+    console.log("GOOGLE_REDIRECT_URI:", process.env.GOOGLE_REDIRECT_URI);
+    console.log("GENERATED AUTH URL:", url);
+    console.log("==========================");
+
+    return res.status(200).json({
+      success: true,
+      url,
+    });
+  } catch (error) {
+    console.error("Google connect error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate Google auth URL",
+    });
+  }
 });
 
-export const googleCallback = async (req, res) => {
- const frontendUrl = process.env.CLIENT_URL || "https://collab-os-frontend.vercel.app";
+export const googleCallback = asyncHandler(async (req, res) => {
+  const frontendUrl =
+    process.env.CLIENT_URL || "https://collab-os-frontend.vercel.app";
+
+  const { code, state } = req.query;
+
+  console.log("=== GOOGLE CALLBACK DEBUG ===");
+  console.log("CODE:", code ? "received" : "missing");
+  console.log("STATE:", state);
+  console.log("============================");
+
+  if (!code) {
+    return res.redirect(
+      `${frontendUrl}/google?google=error&reason=missing_code`
+    );
+  }
+
+  if (!state) {
+    return res.redirect(
+      `${frontendUrl}/google?google=error&reason=missing_state`
+    );
+  }
+
+  let parsedState;
 
   try {
-    const { code, state } = req.query;
+    parsedState = JSON.parse(state);
+  } catch (error) {
+    console.error("State parse error:", error.message);
 
-    if (!code) {
-      return res.redirect(
-        `${frontendUrl}/google?google=error&reason=missing_code`
-      );
-    }
+    return res.redirect(
+      `${frontendUrl}/google?google=error&reason=invalid_state`
+    );
+  }
 
-    if (!state) {
-      return res.redirect(
-        `${frontendUrl}/google?google=error&reason=missing_state`
-      );
-    }
+  if (!parsedState.userId) {
+    return res.redirect(
+      `${frontendUrl}/google?google=error&reason=missing_user`
+    );
+  }
 
-    let parsedState;
-
-    try {
-      parsedState = JSON.parse(state);
-    } catch {
-      return res.redirect(
-        `${frontendUrl}/google?google=error&reason=invalid_state`
-      );
-    }
-
-    if (!parsedState.userId) {
-      return res.redirect(
-        `${frontendUrl}/google?google=error&reason=missing_user`
-      );
-    }
-
+  try {
     await saveGoogleTokens(code, state);
 
     return res.redirect(
-      `${frontendUrl}/google?google=success&projectId=${parsedState.projectId || ""}`
+      `${frontendUrl}/google?google=success&projectId=${
+        parsedState.projectId || ""
+      }`
     );
-
   } catch (error) {
-    console.error("Google callback error:", error.message);
+    console.error("Google token save error:", error.message);
 
     return res.redirect(
       `${frontendUrl}/google?google=error&reason=callback_failed`
     );
   }
-};
+});
 
 export const getGoogleFiles = asyncHandler(async (req, res) => {
   const { projectId } = req.query;
@@ -84,7 +108,7 @@ export const getGoogleFiles = asyncHandler(async (req, res) => {
 
   const files = await fetchGoogleFiles(req.user._id, projectId);
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     files,
   });
