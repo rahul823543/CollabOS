@@ -4,13 +4,10 @@ import {
   googleCallback,
   getGoogleFiles,
 } from "../controllers/google.controller.js";
+
 import { protect } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
-
-router.get("/test", (req, res) => {
-  res.send("google route working");
-});
 
 router.post("/connect", protect, connectGoogle);
 router.get("/callback", googleCallback);
